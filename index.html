@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Anime DB</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f2f2f2;
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      p {
+        color: #666;
+        margin-bottom: 25px;
+      }
+
+      input {
+        width: 280px;
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+      }
+
+      .botones {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      button {
+        width: 260px;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background-color: #e63946;
+        color: white;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      button:hover {
+        background-color: #c1121f;
+        transform: scale(1.02);
+      }
+
+      #resultado {
+        margin-top: 20px;
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        width: 320px;
+        text-align: left;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 700px;
+      }
+
+      .modal img {
+        width: 220px;
+        height: 300px;
+        object-fit: contain;
+      }
+
+      .close {
+        position: absolute;
+        top: 15px;
+        right: 25px;
+        color: white;
+        font-size: 35px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Consulta Anime DB</h1>
+
+    <p>Pokémon → MySQL | Naruto → PostgreSQL | Dragon Ball → MongoDB</p>
+
+    <input type="text" id="nombre" placeholder="Nombre del personaje" />
+
+    <div class="botones">
+      <!-- MYSQL -->
+      <button onclick="consultarPokemon()">Consultar Pokémon (MySQL)</button>
+
+      <!-- POSTGRESQL -->
+      <button onclick="consultarNaruto()">Consultar Naruto (PostgreSQL)</button>
+
+      <!-- MONGODB -->
+      <button onclick="consultarDragonBall()">
+        Consultar Dragon Ball (MongoDB)
+      </button>
+    </div>
+
+    <div id="resultado"></div>
+
+    <br />
+
+    <button onclick="verImagenes()">Ver imágenes</button>
+
+    <!-- MODAL -->
+
+    <div id="modal" class="modal">
+      <span class="close" onclick="cerrarModal()"> &times; </span>
+
+      <div class="modal-content" id="modalContent"></div>
+    </div>
+
+    <script>
+      let dataGlobal = null;
+
+      /* ========================================
+   CONSULTAR POKÉMON - MYSQL
+======================================== */
+
+      async function consultarPokemon() {
+        const nombre = document.getElementById("nombre").value.trim();
+
+        const resultadoDiv = document.getElementById("resultado");
+
+        resultadoDiv.innerHTML = "";
+
+        dataGlobal = null;
+
+        if (!nombre) {
+          resultadoDiv.innerHTML = `
+      <p style="color:red;">
+        Ingresa un Pokémon
+      </p>
+    `;
+
+          return;
+        }
+
+        try {
+          const res = await fetch(
+            `https://pokemon-backend-at7n.onrender.com/pokemon/${nombre}`,
+          );
+
+          if (!res.ok) throw new Error();
+
+          const data = await res.json();
+
+          dataGlobal = {
+            nombre: data.nombre,
+            descripcion1: `Altura: ${data.altura}`,
+            descripcion2: `Peso: ${data.peso}`,
+            habilidades: data.habilidades,
+            imagen1: data.imagenes.frontal,
+            imagen2: data.imagenes.trasera,
+          };
+
+          mostrarResultado("MySQL", dataGlobal);
+        } catch (error) {
+          resultadoDiv.innerHTML = `
+      <p style="color:red;">
+        Pokémon no encontrado
+      </p>
+    `;
+        }
+      }
+
+      /* ========================================
+   CONSULTAR NARUTO - POSTGRESQL
+======================================== */
+
+      async function consultarNaruto() {
+        const nombre = document.getElementById("nombre").value.trim();
+
+        const resultadoDiv = document.getElementById("resultado");
+
+        resultadoDiv.innerHTML = "";
+
+        dataGlobal = null;
+
+        if (!nombre) {
+          resultadoDiv.innerHTML = `
+      <p style="color:red;">
+        Ingresa un personaje
+      </p>
+    `;
+
+          return;
+        }
+
+        try {
+          /*
+      CAMBIA ESTA URL
+      por tu backend Java PostgreSQL
+    */
+
+          const res = await fetch(
+            `https://naruto-backend-849k.onrender.com/naruto/${nombre}`,
+          );
+
+          if (!res.ok) throw new Error();
+
+          const data = await res.json();
+
+          dataGlobal = {
+            nombre: data.nombre,
+            descripcion1: `Aldea: ${data.aldea}`,
+            descripcion2: `Rango: ${data.rango}`,
+            habilidades: data.habilidades,
+            imagen1: data.imagenes.frontal,
+            imagen2: data.imagenes.extra,
+          };
+
+          mostrarResultado("PostgreSQL", dataGlobal);
+        } catch (error) {
+          resultadoDiv.innerHTML = `
+      <p style="color:red;">
+        Personaje de Naruto no encontrado
+      </p>
+    `;
+        }
+      }
+
+      /* ========================================
+   CONSULTAR DRAGON BALL - MONGODB
+======================================== */
+
+      async function consultarDragonBall() {
+        const nombre = document.getElementById("nombre").value.trim();
+
+        const resultadoDiv = document.getElementById("resultado");
+
+        resultadoDiv.innerHTML = "";
+
+        dataGlobal = null;
+
+        if (!nombre) {
+          resultadoDiv.innerHTML = `
+      <p style="color:red;">
+        Ingresa un personaje
+      </p>
+    `;
+
+          return;
+        }
+
+        try {
+          /*
+      CAMBIA ESTA URL
+      por tu backend Python MongoDB
+    */
+
+          const res = await fetch(
+            `https://dragonball-backend-c1fb.onrender.com/dragonball/${nombre}`,
+          );
+
+          if (!res.ok) throw new Error();
+
+          const data = await res.json();
+
+          dataGlobal = {
+            nombre: data.nombre,
+            descripcion1: `Raza: ${data.raza}`,
+            descripcion2: `Transformación: ${data.transformacion}`,
+            habilidades: data.habilidades,
+            imagen1: data.imagenes.frontal,
+            imagen2: data.imagenes.extra,
+          };
+
+          mostrarResultado("MongoDB", dataGlobal);
+        } catch (error) {
+          resultadoDiv.innerHTML = `
+      <p style="color:red;">
+        Personaje de Dragon Ball no encontrado
+      </p>
+    `;
+        }
+      }
+
+      /* ========================================
+   MOSTRAR RESULTADO
+======================================== */
+
+      function mostrarResultado(baseDatos, data) {
+        const resultadoDiv = document.getElementById("resultado");
+
+        resultadoDiv.innerHTML = `
+
+    <p>
+      <strong>Base de datos:</strong>
+      ${baseDatos}
+    </p>
+
+    <p>
+      <strong>Nombre:</strong>
+      ${data.nombre}
+    </p>
+
+    <p>
+      <strong>${data.descripcion1}</strong>
+    </p>
+
+    <p>
+      <strong>${data.descripcion2}</strong>
+    </p>
+
+    <p>
+      <strong>Habilidades:</strong>
+      ${
+        Array.isArray(data.habilidades)
+          ? data.habilidades.join(", ")
+          : data.habilidades
+      }
+    </p>
+  `;
+      }
+
+      /* ========================================
+   VER IMÁGENES
+======================================== */
+
+      function verImagenes() {
+        if (!dataGlobal) {
+          alert("Primero consulta un personaje");
+
+          return;
+        }
+
+        const modal = document.getElementById("modal");
+
+        const content = document.getElementById("modalContent");
+
+        content.innerHTML = `
+
+    <img
+      src="${dataGlobal.imagen1}"
+      alt="Imagen 1"
+      onerror="this.src='https://via.placeholder.com/200x300?text=Sin+Imagen'"
+    >
+
+    <img
+      src="${dataGlobal.imagen2}"
+      alt="Imagen 2"
+      onerror="this.src='https://via.placeholder.com/200x300?text=Sin+Imagen'"
+    >
+  `;
+
+        modal.style.display = "flex";
+      }
+
+      /* ========================================
+   CERRAR MODAL
+======================================== */
+
+      function cerrarModal() {
+        document.getElementById("modal").style.display = "none";
+      }
+
+      /* ========================================
+   CERRAR AL HACER CLICK AFUERA
+======================================== */
+
+      window.onclick = function (event) {
+        const modal = document.getElementById("modal");
+
+        if (event.target === modal) {
+          cerrarModal();
+        }
+      };
+    </script>
+  </body>
+</html>
